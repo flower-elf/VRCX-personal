@@ -800,7 +800,7 @@ class Database {
                 row.$isExpired = true;
             }
             notifications.unshift(row);
-        }, `SELECT * FROM ${Database.userPrefix}_notifications ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
+        }, `SELECT * FROM ${Database.userPrefix}_notifications ORDER BY created_at DESC LIMIT ${Database.maxTableSize}`);
         return notifications;
     }
 
@@ -2608,6 +2608,12 @@ class Database {
                 throw e;
             }
         }
+    }
+
+    async fixCancelFriendRequestTypo() {
+        await sqliteService.executeNonQuery(
+            `UPDATE ${Database.userPrefix}_friend_log_history SET type = 'CancelFriendRequest' WHERE type = 'CancelFriendRequst'`
+        );
     }
 
     async vacuum() {
