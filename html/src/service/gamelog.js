@@ -19,10 +19,12 @@ class GameLogService {
 
             case 'player-joined':
                 gameLog.displayName = args[0];
+                gameLog.userId = args[1];
                 break;
 
             case 'player-left':
                 gameLog.displayName = args[0];
+                gameLog.userId = args[1];
                 break;
 
             case 'notification':
@@ -83,6 +85,12 @@ class GameLogService {
 
             case 'udon-exception':
                 gameLog.data = args[0];
+                break;
+
+            case 'sticker-spawn':
+                gameLog.userId = args[0];
+                gameLog.displayName = args[1];
+                gameLog.fileId = args[2];
                 break;
 
             default:
