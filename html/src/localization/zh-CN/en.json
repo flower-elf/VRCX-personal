@@ -370,7 +370,7 @@
                         "when_to_play_game_running": "游戏运行时",
                         "when_to_play_always": "总是",
                         "tts_voice": "TTS 语音样式",
-                        "use_memo_nicknames": "使用备忘录昵称",
+                        "use_memo_nicknames": "使用备注的昵称",
                         "play": "播放",
                         "tts_test_placeholder": "测试 TTS"
                     }
@@ -444,7 +444,7 @@
                     "save_instance_prints_to_file": {
                         "header": "将房间内的“拍立得”照片保存到本地文件",
                         "header_tooltip": "需要使用 \"--enable-sdk-log-levels\" 启动选项启动VRChat",
-                        "description": "将生成的“拍立得”图片保存到您的 VRChat 图片文件夹中"
+                        "description": "将生成的“拍立得”图片保存到你的 VRChat 图片文件夹中"
                     },
                     "save_instance_stickers_to_file": {
                         "header": "将房间内的表情贴纸保存到本地文件",
