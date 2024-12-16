@@ -8,6 +8,10 @@ class Database {
     async initUserTables(userId) {
         Database.userId = userId;
         Database.userPrefix = userId.replaceAll('-', '').replaceAll('_', '');
+        // Fix escape, add underscore if prefix starts with a number
+        if (Database.userPrefix.match(/^\d/)) {
+            Database.userPrefix = '_' + Database.userPrefix;
+        }
         await sqliteService.executeNonQuery(
             `CREATE TABLE IF NOT EXISTS ${Database.userPrefix}_feed_gps (id INTEGER PRIMARY KEY, created_at TEXT, user_id TEXT, display_name TEXT, location TEXT, world_name TEXT, previous_location TEXT, time INTEGER, group_name TEXT)`
         );
@@ -1143,7 +1147,7 @@ class Database {
         var instances = new Set();
         var ref = {
             timeSpent: 0,
-            created_at: '',
+            lastSeen: '',
             joinCount: 0,
             userId: input.id,
             previousDisplayNames: new Map()
@@ -1155,7 +1159,7 @@ class Database {
                 }
                 i++;
                 if (i === 1 || (inCurrentWorld && i === 2)) {
-                    ref.created_at = row[0];
+                    ref.lastSeen = row[0];
                 }
                 instances.add(row[3]);
                 if (input.displayName !== row[4]) {
@@ -1190,7 +1194,7 @@ class Database {
         await sqliteService.execute(
             (dbRow) => {
                 var row = {
-                    created_at: dbRow[0],
+                    lastSeen: dbRow[0],
                     userId: dbRow[1],
                     timeSpent: dbRow[2],
                     joinCount: dbRow[3],
@@ -1627,10 +1631,29 @@ class Database {
         return gamelogDatabase;
     }
 
-    async lookupGameLogDatabase(search, filters) {
+    /**
+     * Lookup the game log database for a specific search term
+     * @param {string} search The search term
+     * @param {Array} filters The filters to apply
+     * @param {Array} [vipList] The list of VIP users
+     * @returns {Promise<any[]>} The game log data
+     */
+
+    async lookupGameLogDatabase(search, filters, vipList = []) {
         var search = search.replaceAll("'", "''");
         if (search.startsWith('wrld_')) {
             return Database.getGameLogByLocation(search, filters);
+        }
+        let vipQuery = '';
+        if (vipList.length > 0) {
+            vipQuery = 'AND user_id IN (';
+            vipList.forEach((vip, i) => {
+                vipQuery += `'${vip.replaceAll("'", "''")}'`;
+                if (i < vipList.length - 1) {
+                    vipQuery += ', ';
+                }
+            });
+            vipQuery += ')';
         }
         var location = true;
         var onplayerjoined = true;
@@ -1719,7 +1742,7 @@ class Database {
                     time: dbRow[6]
                 };
                 gamelogDatabase.unshift(row);
-            }, `SELECT * FROM gamelog_join_leave WHERE (display_name LIKE '%${search}%' AND user_id != '${Database.userId}') ${query} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
+            }, `SELECT * FROM gamelog_join_leave WHERE (display_name LIKE '%${search}%' AND user_id != '${Database.userId}') ${vipQuery} ${query} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
         if (portalspawn) {
             await sqliteService.execute((dbRow) => {
@@ -1734,7 +1757,7 @@ class Database {
                     worldName: dbRow[6]
                 };
                 gamelogDatabase.unshift(row);
-            }, `SELECT * FROM gamelog_portal_spawn WHERE (display_name LIKE '%${search}%' OR world_name LIKE '%${search}%') ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
+            }, `SELECT * FROM gamelog_portal_spawn WHERE (display_name LIKE '%${search}%' OR world_name LIKE '%${search}%') ${vipQuery} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
         if (msgevent) {
             await sqliteService.execute((dbRow) => {
@@ -1759,7 +1782,7 @@ class Database {
                     location: dbRow[5]
                 };
                 gamelogDatabase.unshift(row);
-            }, `SELECT * FROM gamelog_external WHERE (display_name LIKE '%${search}%' OR message LIKE '%${search}%') ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
+            }, `SELECT * FROM gamelog_external WHERE (display_name LIKE '%${search}%' OR message LIKE '%${search}%') ${vipQuery} ORDER BY id DESC LIMIT ${Database.maxTableSize}`);
         }
         if (videoplay) {
             await sqliteService.execute((dbRow) => {
