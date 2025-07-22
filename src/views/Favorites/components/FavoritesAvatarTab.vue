@@ -285,7 +285,7 @@
         return groupedByGroupKeyFavoriteAvatars;
     });
 
-    const isLocalUserVrcplusSupporter = computed(() => currentUser.value.$isVRCPlus);
+    const isLocalUserVrcplusSupporter = computed(() => true);
 
     function searchAvatarFavorites() {
         let ref = null;
