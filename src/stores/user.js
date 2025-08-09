@@ -20,7 +20,6 @@ import {
     compareByLocationAt,
     compareByName,
     compareByUpdatedAt,
-    convertFileUrlToImageUrl,
     extractFileId,
     getAllUserMemos,
     getGroupName,
@@ -522,6 +521,7 @@ export const useUserStore = defineStore('User', () => {
                 $customTagColour: '',
                 $friendNumber: 0,
                 $lastFetch: Date.now(),
+                $platform: '',
                 //
                 ...json
             };
@@ -596,6 +596,15 @@ export const useUserStore = defineStore('User', () => {
         ref.$isVRCPlus = ref.tags.includes('system_supporter');
         appearanceSettingsStore.applyUserTrustLevel(ref);
         applyUserLanguage(ref);
+        if (
+            ref.platform &&
+            ref.platform !== 'offline' &&
+            ref.platform !== 'web'
+        ) {
+            ref.$platform = ref.platform;
+        } else {
+            ref.$platform = ref.last_platform;
+        }
         // traveling
         if (ref.location === 'traveling') {
             ref.$location = parseLocation(ref.travelingToLocation);
@@ -947,14 +956,6 @@ export const useUserStore = defineStore('User', () => {
                             .getRepresentedGroup({ userId })
                             .then((args1) => {
                                 groupStore.handleGroupRepresented(args1);
-                                D.representedGroup = args1.json;
-                                D.representedGroup.$thumbnailUrl =
-                                    convertFileUrlToImageUrl(
-                                        args1.json.iconUrl
-                                    );
-                                if (!args1.json || !args1.json.isRepresenting) {
-                                    D.isRepresentedGroupLoading = false;
-                                }
                             });
                         D.loading = false;
                     });

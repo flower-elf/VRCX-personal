@@ -73,18 +73,18 @@ export const useVrcxStore = defineStore('Vrcx', () => {
             window.electron.onWindowPositionChanged((event, position) => {
                 state.locationX = position.x;
                 state.locationY = position.y;
-                debounce(saveVRCXWindowOption(), 300);
+                debounce(saveVRCXWindowOption, 300)();
             });
 
             window.electron.onWindowSizeChanged((event, size) => {
                 state.sizeWidth = size.width;
                 state.sizeHeight = size.height;
-                debounce(saveVRCXWindowOption(), 300);
+                debounce(saveVRCXWindowOption, 300)();
             });
 
             window.electron.onWindowStateChange((event, state) => {
                 state.windowState = state;
-                debounce(saveVRCXWindowOption(), 300);
+                debounce(saveVRCXWindowOption, 300)();
             });
 
             // window.electron.onWindowClosed((event) => {
@@ -202,19 +202,6 @@ export const useVrcxStore = defineStore('Vrcx', () => {
             state.isRunningUnderWine = value;
         }
     });
-
-    async function applyWineEmojis() {
-        if (document.contains(document.getElementById('app-emoji-font'))) {
-            document.getElementById('app-emoji-font').remove();
-        }
-        if (state.isRunningUnderWine) {
-            const $appEmojiFont = document.createElement('link');
-            $appEmojiFont.setAttribute('id', 'app-emoji-font');
-            $appEmojiFont.rel = 'stylesheet';
-            $appEmojiFont.href = 'emoji.font.css';
-            document.head.appendChild($appEmojiFont);
-        }
-    }
 
     function showConsole() {
         AppApi.ShowDevTools();
@@ -771,7 +758,6 @@ export const useVrcxStore = defineStore('Vrcx', () => {
         clearVRCXCacheFrequency,
         maxTableSize,
         showConsole,
-        applyWineEmojis,
         clearVRCXCache,
         startupLaunchCommand,
         eventVrcxMessage,

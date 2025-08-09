@@ -184,16 +184,20 @@ ipcMain.handle('app:restart', () => {
 
 ipcMain.handle('app:getWristOverlayWindow', () => {
     if (wristOverlayWindow && wristOverlayWindow.webContents) {
-        return !wristOverlayWindow.webContents.isLoading() && 
-        wristOverlayWindow.webContents.isPainting();
+        return (
+            !wristOverlayWindow.webContents.isLoading() &&
+            wristOverlayWindow.webContents.isPainting()
+        );
     }
     return false;
 });
 
 ipcMain.handle('app:getHmdOverlayWindow', () => {
     if (hmdOverlayWindow && hmdOverlayWindow.webContents) {
-        return !hmdOverlayWindow.webContents.isLoading() && 
-        hmdOverlayWindow.webContents.isPainting();
+        return (
+            !hmdOverlayWindow.webContents.isLoading() &&
+            hmdOverlayWindow.webContents.isPainting()
+        );
     }
     return false;
 });
@@ -611,6 +615,10 @@ async function createDesktopFile() {
     // Download the icon and save it to the target directory
     const iconPath = path.join(homePath, '.local/share/icons/VRCX.png');
     if (!fs.existsSync(iconPath)) {
+        const iconDir = path.dirname(iconPath);
+        if (!fs.existsSync(iconDir)) {
+            fs.mkdirSync(iconDir, { recursive: true });
+        }
         const iconUrl =
             'https://raw.githubusercontent.com/vrcx-team/VRCX/master/VRCX.png';
         await downloadIcon(iconUrl, iconPath)
@@ -743,11 +751,19 @@ function getVersion() {
 }
 
 function isDotNetInstalled() {
-    let dotnetPath = path.join(process.env.DOTNET_ROOT, 'dotnet');
-    if (!process.env.DOTNET_ROOT || !fs.existsSync(dotnetPath)) {
+    let dotnetPath;
+
+    if (process.env.DOTNET_ROOT) {
+        dotnetPath = path.join(process.env.DOTNET_ROOT, 'dotnet');
+        if (!fs.existsSync(dotnetPath)) {
+            // fallback to command
+            dotnetPath = 'dotnet';
+        }
+    } else {
         // fallback to command
         dotnetPath = 'dotnet';
     }
+
     console.log('Checking for .NET installation at:', dotnetPath);
 
     // Fallback to system .NET runtime

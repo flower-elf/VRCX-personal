@@ -179,7 +179,7 @@
                                 {{ t('dialog.user.tags.vrchat_team') }}
                             </el-tag>
                             <el-tag
-                                v-if="userDialog.ref.last_platform === 'standalonewindows'"
+                                v-if="userDialog.ref.$platform === 'standalonewindows'"
                                 type="info"
                                 effect="plain"
                                 size="mini"
@@ -188,7 +188,7 @@
                                 PC
                             </el-tag>
                             <el-tag
-                                v-else-if="userDialog.ref.last_platform === 'android'"
+                                v-else-if="userDialog.ref.$platform === 'android'"
                                 type="info"
                                 effect="plain"
                                 size="mini"
@@ -197,7 +197,7 @@
                                 Android
                             </el-tag>
                             <el-tag
-                                v-else-if="userDialog.ref.last_platform === 'ios'"
+                                v-else-if="userDialog.ref.$platform === 'ios'"
                                 type="info"
                                 effect="plain"
                                 size="mini"
@@ -206,13 +206,13 @@
                                 >iOS</el-tag
                             >
                             <el-tag
-                                v-else-if="userDialog.ref.last_platform"
+                                v-else-if="userDialog.ref.$platform"
                                 type="info"
                                 effect="plain"
                                 size="mini"
                                 class="x-tag-platform-other"
                                 style="margin-right: 5px; margin-top: 5px">
-                                {{ userDialog.ref.last_platform }}
+                                {{ userDialog.ref.$platform }}
                             </el-tag>
                             <el-tag
                                 v-if="userDialog.ref.ageVerified && userDialog.ref.ageVerificationStatus"
@@ -410,18 +410,19 @@
                                         <el-dropdown-item icon="el-icon-postcard" command="Request Invite Message">{{
                                             t('dialog.user.actions.request_invite_with_message')
                                         }}</el-dropdown-item>
-                                        <template
-                                            v-if="
-                                                lastLocation.location &&
-                                                isGameRunning &&
-                                                checkCanInvite(lastLocation.location)
-                                            ">
-                                            <el-dropdown-item icon="el-icon-message" command="Invite">{{
-                                                t('dialog.user.actions.invite')
-                                            }}</el-dropdown-item>
-                                            <el-dropdown-item icon="el-icon-message" command="Invite Message">{{
-                                                t('dialog.user.actions.invite_with_message')
-                                            }}</el-dropdown-item>
+                                        <template v-if="isGameRunning">
+                                            <el-dropdown-item
+                                                :disabled="!checkCanInvite(lastLocation.location)"
+                                                icon="el-icon-message"
+                                                command="Invite"
+                                                >{{ t('dialog.user.actions.invite') }}</el-dropdown-item
+                                            >
+                                            <el-dropdown-item
+                                                :disabled="!checkCanInvite(lastLocation.location)"
+                                                icon="el-icon-message"
+                                                command="Invite Message"
+                                                >{{ t('dialog.user.actions.invite_with_message') }}</el-dropdown-item
+                                            >
                                         </template>
                                     </template>
                                     <template v-else-if="userDialog.incomingRequest">
@@ -901,9 +902,7 @@
                         <div class="x-friend-item" style="cursor: default">
                             <el-tooltip :placement="currentUser.id !== userDialog.id ? 'bottom' : 'top'">
                                 <template #content>
-                                    <span>{{
-                                        formatDateFilter(String(userOnlineForTimestamp(userDialog)), 'short')
-                                    }}</span>
+                                    <span>{{ formatDateFilter(userOnlineForTimestamp(userDialog), 'short') }}</span>
                                 </template>
                                 <div class="detail">
                                     <span

@@ -642,7 +642,7 @@
             </div>
             <div class="current-instance-table">
                 <data-tables
-                    v-bind="currentInstanceUserList"
+                    v-bind="currentInstanceWorld.ref.id ? currentInstanceUserList : {}"
                     style="margin-top: 10px; cursor: pointer"
                     @row-click="selectCurrentInstanceRow">
                     <el-table-column :label="t('table.playerList.avatar')" width="70" prop="photo">
@@ -662,7 +662,7 @@
                             </template>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="t('table.playerList.timer')" width="80" prop="timer" sortable>
+                    <el-table-column :label="t('table.playerList.timer')" width="90" prop="timer" sortable>
                         <template #default="scope">
                             <Timer :epoch="scope.row.timer" />
                         </template>

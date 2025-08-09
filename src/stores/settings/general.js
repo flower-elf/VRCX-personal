@@ -6,10 +6,12 @@ import { t } from '../../plugin';
 import configRepository from '../../service/config';
 import { useVrcxStore } from '../vrcx';
 import { useVRCXUpdaterStore } from '../vrcxUpdater';
+import { useFriendStore } from '../friend';
 
 export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
     const vrcxStore = useVrcxStore();
     const VRCXUpdaterStore = useVRCXUpdaterStore();
+    const friendStore = useFriendStore();
     const state = reactive({
         isStartAtWindowsStartup: false,
         isStartAsMinimizedState: false,
@@ -44,6 +46,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             autoStateChangeAloneStatus,
             autoStateChangeCompanyStatus,
             autoStateChangeInstanceTypesStr,
+            autoStateChangeNoFriends,
             autoAcceptInviteRequests
         ] = await Promise.all([
             configRepository.getBool('VRCX_StartAtWindowsStartup', false),
@@ -69,6 +72,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
                 'VRCX_autoStateChangeInstanceTypes',
                 '[]'
             ),
+            configRepository.getBool('VRCX_autoStateChangeNoFriends', false),
             configRepository.getString('VRCX_autoAcceptInviteRequests', 'Off')
         ]);
 
@@ -102,6 +106,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         state.autoStateChangeInstanceTypes = JSON.parse(
             autoStateChangeInstanceTypesStr
         );
+        state.autoStateChangeNoFriends = autoStateChangeNoFriends;
         state.autoAcceptInviteRequests = autoAcceptInviteRequests;
     }
 
@@ -184,6 +189,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             'VRCX_localFavoriteFriendsGroups',
             JSON.stringify(value)
         );
+        friendStore.updateLocalFavoriteFriends();
     }
     function setUdonExceptionLogging() {
         state.udonExceptionLogging = !state.udonExceptionLogging;
