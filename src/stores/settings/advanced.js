@@ -512,6 +512,71 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         );
     }
 
+    function askDeleteAllScreenshotMetadata() {
+        $app.$confirm(
+            t(
+                'view.settings.advanced.advanced.delete_all_screenshot_metadata.ask'
+            ),
+            {
+                confirmButtonText: t(
+                    'view.settings.advanced.advanced.delete_all_screenshot_metadata.confirm_yes'
+                ),
+                cancelButtonText: t(
+                    'view.settings.advanced.advanced.delete_all_screenshot_metadata.confirm_no'
+                ),
+                type: 'warning',
+                showInput: false,
+                callback: async (action) => {
+                    if (action === 'confirm') {
+                        deleteAllScreenshotMetadata();
+                    }
+                }
+            }
+        );
+    }
+
+    function deleteAllScreenshotMetadata() {
+        $app.$confirm(
+            t(
+                'view.settings.advanced.advanced.delete_all_screenshot_metadata.confirm'
+            ),
+            {
+                confirmButtonText: t(
+                    'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old_confirm'
+                ),
+                cancelButtonText: t(
+                    'view.settings.advanced.advanced.save_instance_prints_to_file.crop_convert_old_cancel'
+                ),
+                type: 'warning',
+                showInput: false,
+                callback: async (action) => {
+                    if (action === 'confirm') {
+                        const msgBox = $app.$message({
+                            message: 'Batch metadata removal in progress...',
+                            type: 'warning',
+                            duration: 0
+                        });
+                        try {
+                            await AppApi.DeleteAllScreenshotMetadata();
+                            $app.$message({
+                                message: 'Batch metadata removal complete',
+                                type: 'success'
+                            });
+                        } catch (err) {
+                            console.error(err);
+                            $app.$message({
+                                message: `Batch metadata removal failed: ${err}`,
+                                type: 'error'
+                            });
+                        } finally {
+                            msgBox.close();
+                        }
+                    }
+                }
+            }
+        );
+    }
+
     function resetUGCFolder() {
         setUGCFolderPath('');
     }
@@ -561,21 +626,25 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
                 distinguishCancelAndClose: true,
                 confirmButtonText: t('prompt.auto_clear_cache.ok'),
                 cancelButtonText: t('prompt.auto_clear_cache.cancel'),
-                inputValue: vrcxStore.clearVRCXCacheFrequency / 3600 / 2,
+                inputValue: (
+                    vrcxStore.clearVRCXCacheFrequency /
+                    3600 /
+                    2
+                ).toString(),
                 inputPattern: /\d+$/,
                 inputErrorMessage: t('prompt.auto_clear_cache.input_error'),
                 callback: async (action, instance) => {
                     if (
                         action === 'confirm' &&
                         instance.inputValue &&
-                        !isNaN(instance.inputValue)
+                        !isNaN(parseInt(instance.inputValue, 10))
                     ) {
                         vrcxStore.clearVRCXCacheFrequency = Math.trunc(
-                            Number(instance.inputValue) * 3600 * 2
+                            parseInt(instance.inputValue, 10) * 3600 * 2
                         );
                         await configRepository.setString(
                             'VRCX_clearVRCXCacheFrequency',
-                            vrcxStore.clearVRCXCacheFrequency
+                            vrcxStore.clearVRCXCacheFrequency.toString()
                         );
                     }
                 }
@@ -647,6 +716,7 @@ export const useAdvancedSettingsStore = defineStore('AdvancedSettings', () => {
         showVRChatConfig,
         promptAutoClearVRCXCacheFrequency,
         setSaveInstanceEmoji,
-        setVrcRegistryAutoBackup
+        setVrcRegistryAutoBackup,
+        askDeleteAllScreenshotMetadata
     };
 });

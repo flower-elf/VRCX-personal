@@ -350,6 +350,8 @@ div.x-friend-list
 
 .el-dialog__body {
     color: $--theme-text-1;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .el-radio {

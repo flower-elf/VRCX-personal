@@ -224,11 +224,13 @@ export const useUserStore = defineStore('User', () => {
                 fileCreatedAt: ''
             },
             representedGroup: {
+                bannerId: '',
                 bannerUrl: '',
                 description: '',
                 discriminator: '',
                 groupId: '',
                 iconUrl: '',
+                id: '',
                 isRepresenting: false,
                 memberCount: 0,
                 memberVisibility: '',
@@ -236,7 +238,8 @@ export const useUserStore = defineStore('User', () => {
                 ownerId: '',
                 privacy: '',
                 shortCode: '',
-                $thumbnailUrl: ''
+                $thumbnailUrl: '',
+                $memberId: ''
             },
             isRepresentedGroupLoading: false,
             joinCount: 0,
@@ -520,7 +523,6 @@ export const useUserStore = defineStore('User', () => {
                 $customTag: '',
                 $customTagColour: '',
                 $friendNumber: 0,
-                $lastFetch: Date.now(),
                 $platform: '',
                 //
                 ...json
@@ -552,7 +554,6 @@ export const useUserStore = defineStore('User', () => {
             }
             state.cachedUsers.set(ref.id, ref);
         } else {
-            json.$lastFetch = Date.now(); // todo: make this not suck
             if (json.state !== 'online') {
                 // offline event before GPS to offline location
                 friendStore.updateFriend(ref.id, json.state);
@@ -777,10 +778,12 @@ export const useUserStore = defineStore('User', () => {
         };
         D.isRepresentedGroupLoading = true;
         D.representedGroup = {
+            bannerId: '',
             bannerUrl: '',
             description: '',
             discriminator: '',
             groupId: '',
+            id: '',
             iconUrl: '',
             isRepresenting: false,
             memberCount: 0,
@@ -789,7 +792,8 @@ export const useUserStore = defineStore('User', () => {
             ownerId: '',
             privacy: '',
             shortCode: '',
-            $thumbnailUrl: ''
+            $thumbnailUrl: '',
+            $memberId: ''
         };
         D.lastSeen = '';
         D.joinCount = 0;
@@ -1002,7 +1006,7 @@ export const useUserStore = defineStore('User', () => {
         if (!D.visible) {
             return;
         }
-        const L = parseLocation(D.ref.$location.tag);
+        const L = parseLocation(D.ref.$location?.tag);
         if (updateInstanceOccupants && L.isRealInstance) {
             instanceRequest.getInstance({
                 worldId: L.worldId,
