@@ -109,7 +109,7 @@
         }
     });
 
-    const isLocalUserVrcplusSupporter = computed(() => currentUser.value.$isVRCPlus);
+    const isLocalUserVrcplusSupporter = computed(() => true);
 
     watch(
         () => favoriteDialog.value.visible,
